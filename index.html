@@ -81,6 +81,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 6px;
     padding: 4px 4px 8px;
   }
   .level-tag {
@@ -92,8 +93,34 @@
     padding: 6px 14px;
     border-radius: 20px;
     box-shadow: 0 3px 0 #3F33B8;
+    flex: 1;
   }
-  .home-btn {
+
+  /* Combo badge */
+  .combo-badge {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: white;
+    background: #FF9F43;
+    padding: 5px 10px;
+    border-radius: 14px;
+    box-shadow: 0 2px 0 #CC7700;
+    white-space: nowrap;
+    display: none;
+    flex-shrink: 0;
+  }
+  .combo-badge.show { display: block; }
+  .combo-badge.hot {
+    background: linear-gradient(135deg, #FF3D8B, #FFD93D);
+    animation: comboPop 0.3s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes comboPop {
+    0% { transform: scale(0.7); }
+    100% { transform: scale(1); }
+  }
+
+  .home-btn, .mute-btn {
     background: white;
     border: none;
     width: 38px;
@@ -102,10 +129,11 @@
     font-size: 18px;
     cursor: pointer;
     box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+    flex-shrink: 0;
   }
-  .home-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.15); }
+  .home-btn:active, .mute-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.15); }
 
-  /* PROGRESS BAR — replaces the old 5 stars to fit 20 rounds cleanly */
+  /* PROGRESS BAR */
   .progress-strip {
     display: flex;
     align-items: center;
@@ -154,7 +182,7 @@
   .word-card {
     background: white;
     border-radius: 28px;
-    padding: 18px 16px;
+    padding: 18px 16px 14px;
     margin-bottom: 14px;
     box-shadow: 0 6px 0 rgba(255,107,177,0.35), 0 10px 24px rgba(0,0,0,0.1);
     text-align: center;
@@ -182,6 +210,54 @@
   @keyframes wordPop {
     0% { transform: scale(0.4); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Timer seconds display (top-left of word card) */
+  .timer-secs {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #FF9F43;
+    min-width: 26px;
+    text-align: left;
+    line-height: 1;
+    transition: color 0.3s;
+  }
+  .timer-secs.urgent {
+    color: #FF3D00;
+    animation: secsPulse 0.35s ease-in-out infinite alternate;
+  }
+  @keyframes secsPulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.25); }
+  }
+
+  /* Timer bar at bottom of word card */
+  .timer-bar-wrap {
+    height: 8px;
+    background: rgba(255,107,177,0.15);
+    border-radius: 6px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  .timer-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    width: 100%;
+    background: #4ADE80;
+  }
+  .timer-bar-fill.mid  { background: #FFD93D; }
+  .timer-bar-fill.low  { background: #FF9F43; }
+  .timer-bar-fill.crit {
+    background: #FF3D00;
+    animation: barFlash 0.25s ease-in-out infinite alternate;
+  }
+  @keyframes barFlash {
+    from { opacity: 1; }
+    to { opacity: 0.4; }
   }
 
   .speaker-btn {
@@ -220,11 +296,25 @@
     box-shadow: 0 5px 0 rgba(0,0,0,0.12), 0 6px 14px rgba(0,0,0,0.08);
     transition: transform 0.15s, box-shadow 0.15s;
     animation: choicePop 0.4s cubic-bezier(.34,1.56,.64,1) backwards;
+    position: relative;
   }
   .choice:nth-child(1) { animation-delay: 0.05s; background: #FFE066; }
   .choice:nth-child(2) { animation-delay: 0.13s; background: #C8F7C5; }
   .choice:nth-child(3) { animation-delay: 0.21s; background: #FFB3D9; }
   .choice:nth-child(4) { animation-delay: 0.29s; background: #B3E0FF; }
+
+  /* Keyboard hint number in corner of each choice */
+  .choice .key-num {
+    position: absolute;
+    top: 7px;
+    left: 9px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.22);
+    pointer-events: none;
+    line-height: 1;
+  }
 
   @keyframes choicePop {
     from { transform: scale(0) rotate(-180deg); opacity: 0; }
@@ -237,7 +327,7 @@
   }
   .choice:disabled { cursor: default; }
   .choice.correct { animation: choiceWin 0.7s; }
-  .choice.wrong { animation: choiceShake 0.5s; }
+  .choice.wrong   { animation: choiceShake 0.5s; }
 
   @keyframes choiceWin {
     0%, 100% { transform: scale(1); box-shadow: 5px 5px 0 #1a0033; }
@@ -358,6 +448,19 @@
     100% { transform: translateY(-160px) scale(1.4) rotate(20deg); opacity: 0; }
   }
 
+  /* Full-screen flash on combo streak milestone */
+  .streak-flash {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    animation: streakFade 0.5s ease-out forwards;
+  }
+  @keyframes streakFade {
+    0%   { background: rgba(255,217,61,0.45); }
+    100% { background: transparent; }
+  }
+
   .screen {
     position: fixed;
     inset: 0;
@@ -434,6 +537,12 @@
     box-shadow: 0 3px 0 #C8388A, 0 5px 12px rgba(255,107,177,0.4);
     animation: none;
   }
+  .play-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+    animation: none;
+    transform: none;
+  }
 
   @keyframes pulse {
     0%, 100% { transform: scale(1); }
@@ -486,6 +595,13 @@
     font-size: 22px;
     color: #5B4FE4;
     margin-bottom: 4px;
+  }
+  .celebration .stat {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: #FF9F43;
+    margin-bottom: 26px;
   }
   .celebration p {
     font-family: 'Fredoka', sans-serif;
@@ -587,8 +703,8 @@
     <div class="big-emoji">🎊</div>
     <h2>LEVEL CLEAR!</h2>
     <div class="next-level" id="next-level-msg">NEXT: KINDERGARTEN</div>
-    <div class="stat" id="celebrate-stat">⭐ 20 stars · 🔥 max combo 5</div>
-    <button class="play-btn" onclick="continueGame()">NEXT ▶</button>
+    <div class="stat" id="celebrate-stat">⭐ 0 correct · 🔥 best combo 0</div>
+    <button class="play-btn" id="continue-btn" onclick="continueGame()">NEXT ▶</button>
   </div>
 </div>
 
@@ -606,6 +722,8 @@
 <div class="game" id="game-screen" style="display:none;">
   <div class="game-header">
     <div class="level-tag" id="current-level-tag">PRESCHOOL</div>
+    <div class="combo-badge" id="combo-badge">🔥 ×2</div>
+    <button class="mute-btn" id="mute-btn" onclick="toggleMute()" aria-label="toggle sound">🔊</button>
     <button class="home-btn" onclick="restartGame()" aria-label="restart">🏠</button>
   </div>
   <div class="progress-strip">
@@ -614,8 +732,10 @@
   </div>
   <div class="word-card">
     <div class="label">Read this word</div>
+    <div class="timer-secs" id="timer-secs">16</div>
     <div class="word" id="word">cat</div>
     <button class="speaker-btn" onclick="speakWord()" aria-label="hear word">🔊</button>
+    <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timer-bar-fill"></div></div>
   </div>
   <div class="choices" id="choices"></div>
   <div class="chase-track">
@@ -635,10 +755,8 @@
     {
       name: "Preschool",
       icon: "🍼",
-      // round 1 timer = 16s, round 20 timer = 9s
       startTime: 16,
       endTime: 9,
-      // EASY: very common single-syllable words
       easy: [
         { word: 'cat', emoji: '🐱' }, { word: 'dog', emoji: '🐶' },
         { word: 'sun', emoji: '☀️' }, { word: 'pig', emoji: '🐷' },
@@ -648,7 +766,6 @@
         { word: 'bus', emoji: '🚌' }, { word: 'car', emoji: '🚗' },
         { word: 'egg', emoji: '🥚' }, { word: 'bed', emoji: '🛏️' }
       ],
-      // HARDER: still simple but with consonant blends or 4 letters
       hard: [
         { word: 'fish', emoji: '🐟' }, { word: 'frog', emoji: '🐸' },
         { word: 'duck', emoji: '🦆' }, { word: 'star', emoji: '⭐' },
@@ -746,17 +863,23 @@
 
   let state = {
     levelIdx: 0,
-    roundInLevel: 0,        // 0..19
+    roundInLevel: 0,
     totalCorrect: 0,
-    pool: [],
     currentWord: null,
+    lastWord: null,       // prevents consecutive word repeat
     timerHandle: null,
-    isAnswering: false
+    introTimeout: null,   // tracks level-intro delay so restart can cancel it
+    timerInterval: null,  // drives the seconds countdown display
+    isAnswering: false,
+    combo: 0,
+    maxCombo: 0,
+    muted: false,
+    continuing: false     // guard against double-clicking NEXT
   };
 
   let audioCtx = null;
-  const bearEl = () => document.getElementById('bear');
-  const kidEl = () => document.getElementById('kid');
+  const bearEl   = () => document.getElementById('bear');
+  const kidEl    = () => document.getElementById('kid');
   const bubbleEl = () => document.getElementById('bubble');
 
   function getAudio() {
@@ -768,10 +891,11 @@
   }
 
   function playTone(freq, duration, type = 'sine') {
+    if (state.muted) return;
     try {
       const ctx = getAudio();
       if (!ctx) return;
-      const osc = ctx.createOscillator();
+      const osc  = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = type;
       osc.frequency.value = freq;
@@ -789,7 +913,10 @@
     setTimeout(() => playTone(659, 0.1), 100);
     setTimeout(() => playTone(784, 0.2), 200);
   }
-  function sadBoop() { playTone(220, 0.18, 'sine'); }
+  function streakChime() {
+    [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.15), i * 80));
+  }
+  function sadBoop()    { playTone(220, 0.18, 'sine'); }
   function gigglyTone() {
     [660, 750, 880, 750, 990].forEach((f, i) => {
       setTimeout(() => playTone(f, 0.12, 'triangle'), i * 90);
@@ -801,20 +928,29 @@
     });
   }
 
+  function toggleMute() {
+    state.muted = !state.muted;
+    document.getElementById('mute-btn').textContent = state.muted ? '🔇' : '🔊';
+  }
+
   function speakWord() {
-    if (!state.currentWord) return;
+    if (!state.currentWord || state.muted) return;
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(state.currentWord.word);
-      u.rate = 0.7;
+      u.rate  = 0.7;
       u.pitch = 1.3;
       window.speechSynthesis.speak(u);
     }
   }
 
   function startGame() {
-    state.levelIdx = 0;
+    state.levelIdx    = 0;
     state.totalCorrect = 0;
+    state.combo        = 0;
+    state.maxCombo     = 0;
+    state.lastWord     = null;
+    state.continuing   = false;
     document.getElementById('title-screen').classList.add('hidden');
     getAudio();
     showLevelIntro();
@@ -822,54 +958,63 @@
 
   function restartGame() {
     clearTimeout(state.timerHandle);
-    state.timerHandle = null;
+    clearTimeout(state.introTimeout);
+    clearInterval(state.timerInterval);
+    state.timerHandle   = null;
+    state.introTimeout  = null;
+    state.timerInterval = null;
+    state.isAnswering   = false;
+    state.combo         = 0;
+    state.continuing    = false;
+
     document.getElementById('game-screen').style.display = 'none';
     document.getElementById('celebrate-screen').classList.add('hidden');
     document.getElementById('champion-screen').classList.add('hidden');
     document.getElementById('level-intro').classList.add('hidden');
     document.getElementById('title-screen').classList.remove('hidden');
+    updateComboBadge();
   }
 
   function showLevelIntro() {
+    // Guard: ignore if an intro is already scheduled
+    if (state.introTimeout) return;
+
     const lvl = LEVELS[state.levelIdx];
     document.getElementById('grade-icon').textContent = lvl.icon;
-    document.getElementById('lvl-num').textContent = `Level ${state.levelIdx + 1}`;
-    document.getElementById('lvl-name').textContent = lvl.name;
+    document.getElementById('lvl-num').textContent    = `Level ${state.levelIdx + 1}`;
+    document.getElementById('lvl-name').textContent   = lvl.name;
     document.getElementById('level-intro').classList.remove('hidden');
     document.getElementById('game-screen').style.display = 'none';
 
-    setTimeout(() => {
+    state.introTimeout = setTimeout(() => {
+      state.introTimeout = null;
       document.getElementById('level-intro').classList.add('hidden');
       enterLevel();
     }, 1800);
   }
 
-  // Difficulty: each round in the level uses a shrinking timer
-  // Round 1: startTime sec, Round 20: endTime sec
   function timerForRound(roundNum) {
-    const lvl = LEVELS[state.levelIdx];
-    const ratio = roundNum / (ROUNDS_PER_LEVEL - 1);  // 0..1
+    const lvl   = LEVELS[state.levelIdx];
+    const ratio = roundNum / (ROUNDS_PER_LEVEL - 1);
     return lvl.startTime - (lvl.startTime - lvl.endTime) * ratio;
   }
 
-  // Pick the word pool: first half of rounds use "easy" words, second half use "hard"
   function getWordPool() {
     const lvl = LEVELS[state.levelIdx];
     if (state.roundInLevel < ROUNDS_PER_LEVEL / 2) {
-      // easy phase
       return [...lvl.easy];
     } else {
-      // hard phase — mostly hard words, sprinkle a few easy
       return [...lvl.hard, ...lvl.hard, ...lvl.easy.slice(0, 3)];
     }
   }
 
   function enterLevel() {
     state.roundInLevel = 0;
+    state.lastWord     = null;
     document.getElementById('current-level-tag').textContent = LEVELS[state.levelIdx].name;
     updateProgress();
+    updateComboBadge();
 
-    // randomize kid for this level
     const kid = KIDS[Math.floor(Math.random() * KIDS.length)];
     kidEl().textContent = kid;
 
@@ -879,39 +1024,70 @@
 
   function updateProgress() {
     const correct = state.roundInLevel;
-    document.getElementById('round-counter').textContent = `⭐ ${correct}/${ROUNDS_PER_LEVEL}`;
-    document.getElementById('pbar-fill').style.width = `${(correct / ROUNDS_PER_LEVEL) * 100}%`;
-    // Last 5 rounds = danger mode
-    if (correct >= 15) {
-      document.getElementById('round-counter').classList.add('danger');
+    document.getElementById('round-counter').textContent  = `⭐ ${correct}/${ROUNDS_PER_LEVEL}`;
+    document.getElementById('pbar-fill').style.width      = `${(correct / ROUNDS_PER_LEVEL) * 100}%`;
+    const counter = document.getElementById('round-counter');
+    counter.classList.toggle('danger', correct >= 15);
+  }
+
+  function updateComboBadge() {
+    const badge = document.getElementById('combo-badge');
+    if (state.combo >= 2) {
+      badge.textContent = `🔥 ×${state.combo}`;
+      badge.classList.add('show');
+      badge.classList.toggle('hot', state.combo >= 5);
     } else {
-      document.getElementById('round-counter').classList.remove('danger');
+      badge.classList.remove('show', 'hot');
     }
   }
 
+  function updateTimerDisplay(secsLeft, totalSecs) {
+    const secEl = document.getElementById('timer-secs');
+    const barEl = document.getElementById('timer-bar-fill');
+    const pct   = (secsLeft / totalSecs) * 100;
+
+    secEl.textContent = Math.ceil(secsLeft);
+    secEl.classList.toggle('urgent', secsLeft <= 3);
+
+    barEl.style.width = pct + '%';
+    barEl.className   = 'timer-bar-fill';
+    if      (pct > 60) { /* green — default */ }
+    else if (pct > 30) barEl.classList.add('mid');
+    else if (pct > 15) barEl.classList.add('low');
+    else               barEl.classList.add('crit');
+  }
+
   function nextRound() {
-    // Build pool fresh each round so we always have words to choose from
+    // Pick word, skipping the previous one to prevent back-to-back repeats
     const pool = getWordPool();
-    state.currentWord = pool[Math.floor(Math.random() * pool.length)];
+    let candidates = pool;
+    if (state.lastWord && pool.length > 1) {
+      const filtered = pool.filter(w => w.word !== state.lastWord.word);
+      if (filtered.length > 0) candidates = filtered;
+    }
+    state.currentWord = candidates[Math.floor(Math.random() * candidates.length)];
+    state.lastWord    = state.currentWord;
+
     document.getElementById('word').textContent = state.currentWord.word;
 
-    // Distractors come from the WHOLE level (easy + hard) so later rounds have tricky lookalikes
-    const lvl = LEVELS[state.levelIdx];
-    const allWords = [...lvl.easy, ...lvl.hard];
-    const others = allWords.filter(w => w.word !== state.currentWord.word);
-    const distractors = [];
-    while (distractors.length < 3 && others.length > distractors.length) {
-      const pick = others[Math.floor(Math.random() * others.length)];
-      if (!distractors.includes(pick)) distractors.push(pick);
+    // FIX: use Fisher-Yates shuffle + slice instead of while-loop to avoid potential slow paths
+    const lvl    = LEVELS[state.levelIdx];
+    const others = [...lvl.easy, ...lvl.hard].filter(w => w.word !== state.currentWord.word);
+    for (let i = others.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [others[i], others[j]] = [others[j], others[i]];
     }
-    const choices = [state.currentWord, ...distractors].sort(() => Math.random() - 0.5);
+    const distractors = others.slice(0, 3);
 
+    const choices   = [state.currentWord, ...distractors].sort(() => Math.random() - 0.5);
     const container = document.getElementById('choices');
     container.innerHTML = '';
-    choices.forEach(c => {
+    choices.forEach((c, idx) => {
       const btn = document.createElement('button');
       btn.className = 'choice';
-      btn.textContent = c.emoji;
+      // key-num hint for keyboard players; emoji as sibling text node
+      btn.innerHTML = `<span class="key-num">${idx + 1}</span>${c.emoji}`;
+      btn.dataset.word = c.word;
       btn.onclick = () => handleChoice(c, btn);
       container.appendChild(btn);
     });
@@ -922,26 +1098,60 @@
 
   function startBearChase() {
     const seconds = timerForRound(state.roundInLevel);
+
+    // Reset timer bar to full
+    const barEl = document.getElementById('timer-bar-fill');
+    barEl.style.width = '100%';
+    barEl.className   = 'timer-bar-fill';
+
+    // Snap bear back to start
     const b = bearEl();
     b.style.transition = 'none';
-    b.style.left = '8px';
+    b.style.left       = '8px';
     void b.offsetWidth;
     b.style.transition = `left ${seconds}s linear`;
-    b.style.left = 'calc(100% - 80px)';
+    b.style.left       = 'calc(100% - 80px)';
 
     clearTimeout(state.timerHandle);
-    state.timerHandle = setTimeout(() => handleCaught(), seconds * 1000);
+    clearInterval(state.timerInterval);
+
+    updateTimerDisplay(seconds, seconds);
+
+    const startMs = Date.now();
+    state.timerInterval = setInterval(() => {
+      const remaining = Math.max(0, seconds - (Date.now() - startMs) / 1000);
+      updateTimerDisplay(remaining, seconds);
+      if (remaining <= 0) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+    }, 100);
+
+    state.timerHandle = setTimeout(() => {
+      clearInterval(state.timerInterval);
+      state.timerInterval = null;
+      handleCaught();
+    }, seconds * 1000);
   }
 
   function stopBearChase() {
     clearTimeout(state.timerHandle);
-    const b = bearEl();
+    clearInterval(state.timerInterval);
+    state.timerHandle   = null;
+    state.timerInterval = null;
+
+    // Freeze bear at current position then spring it back
+    const b           = bearEl();
     const currentLeft = window.getComputedStyle(b).left;
     b.style.transition = 'none';
-    b.style.left = currentLeft;
+    b.style.left       = currentLeft;
     void b.offsetWidth;
     b.style.transition = 'left 0.6s cubic-bezier(.34,1.56,.64,1)';
-    b.style.left = '8px';
+    b.style.left       = '8px';
+
+    // Freeze timer bar at its current width
+    const barEl = document.getElementById('timer-bar-fill');
+    barEl.style.width = barEl.style.width; // no-op keeps current value
   }
 
   function handleChoice(choice, btn) {
@@ -956,7 +1166,16 @@
 
       state.roundInLevel++;
       state.totalCorrect++;
+      state.combo++;
+      if (state.combo > state.maxCombo) state.maxCombo = state.combo;
       updateProgress();
+      updateComboBadge();
+
+      // Flash + bonus chime every 5 consecutive correct answers
+      if (state.combo % 5 === 0) {
+        streakChime();
+        spawnStreakFlash();
+      }
 
       document.querySelectorAll('.choice').forEach(b => b.disabled = true);
 
@@ -968,22 +1187,32 @@
         }
       }, 1200);
     } else {
+      // FIX: disable the wrong button during its shake animation to prevent spam clicks
+      btn.disabled = true;
       btn.classList.add('wrong');
       sadBoop();
-      setTimeout(() => btn.classList.remove('wrong'), 500);
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.classList.remove('wrong');
+      }, 500);
     }
   }
 
   function handleCaught() {
-    state.isAnswering = false;
+    state.isAnswering   = false;
+    state.combo         = 0;
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+    updateComboBadge();
+
     document.querySelectorAll('.choice').forEach(b => b.disabled = true);
 
-    const b = bearEl();
-    const k = kidEl();
+    const b      = bearEl();
+    const k      = kidEl();
     const bubble = bubbleEl();
 
     b.style.transition = 'left 0.25s ease-in';
-    b.style.left = 'calc(100% - 76px)';
+    b.style.left       = 'calc(100% - 76px)';
 
     k.classList.add('tickled');
     bubble.classList.add('show');
@@ -994,27 +1223,33 @@
       k.classList.remove('tickled');
       bubble.classList.remove('show');
       b.style.transition = 'left 0.6s cubic-bezier(.34,1.56,.64,1)';
-      b.style.left = '8px';
-      // tickle = retry the same round (no progress lost, no progress gained)
+      b.style.left       = '8px';
       setTimeout(() => nextRound(), 500);
     }, 2000);
   }
 
   function spawnGiggles() {
-    const k = kidEl();
+    const k    = kidEl();
     const rect = k.getBoundingClientRect();
     const emojis = ['😂', '🤣', '😆', '😹'];
     for (let i = 0; i < 10; i++) {
       setTimeout(() => {
         const g = document.createElement('div');
-        g.className = 'giggle';
+        g.className   = 'giggle';
         g.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        g.style.left = (rect.left + Math.random() * rect.width - 10) + 'px';
-        g.style.top = rect.top + 'px';
+        g.style.left  = (rect.left + Math.random() * rect.width - 10) + 'px';
+        g.style.top   = rect.top + 'px';
         document.body.appendChild(g);
         setTimeout(() => g.remove(), 1900);
       }, i * 90);
     }
+  }
+
+  function spawnStreakFlash() {
+    const el = document.createElement('div');
+    el.className = 'streak-flash';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 500);
   }
 
   function completeLevel() {
@@ -1024,40 +1259,59 @@
 
     const isLast = state.levelIdx >= LEVELS.length - 1;
     if (isLast) {
-      const champ = document.getElementById('champion-screen');
       document.getElementById('champion-msg').textContent =
-        `You finished all ${LEVELS.length} grades and answered ${state.totalCorrect} questions!`;
-      champ.classList.remove('hidden');
+        `You finished all ${LEVELS.length} grades! ${state.totalCorrect} correct · 🔥 best combo ${state.maxCombo}!`;
+      document.getElementById('champion-screen').classList.remove('hidden');
     } else {
       const next = LEVELS[state.levelIdx + 1];
       document.getElementById('next-level-msg').textContent = `Next: ${next.name}!`;
       document.getElementById('celebrate-stat').textContent =
-        `⭐ ${state.totalCorrect} correct so far!`;
+        `⭐ ${state.totalCorrect} correct so far · 🔥 best combo ${state.maxCombo}`;
+      const continueBtn = document.getElementById('continue-btn');
+      continueBtn.disabled = false;
       document.getElementById('celebrate-screen').classList.remove('hidden');
     }
   }
 
   function continueGame() {
+    // FIX: guard against double-tap on the NEXT button
+    if (state.continuing) return;
+    state.continuing = true;
+    document.getElementById('continue-btn').disabled = true;
     document.getElementById('celebrate-screen').classList.add('hidden');
     state.levelIdx++;
+    state.combo = 0;
     showLevelIntro();
   }
 
   function spawnConfetti() {
+    // FIX: remove leftover confetti from previous levels before spawning fresh batch
+    document.querySelectorAll('.confetti').forEach(c => c.remove());
     const colors = ['#FF6BB1', '#FFD93D', '#5B4FE4', '#4ADE80', '#FF9F43', '#06B6D4'];
     for (let i = 0; i < 70; i++) {
       const c = document.createElement('div');
-      c.className = 'confetti';
-      c.style.left = Math.random() * 100 + 'vw';
-      c.style.top = '-20px';
-      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.className         = 'confetti';
+      c.style.left        = Math.random() * 100 + 'vw';
+      c.style.top         = '-20px';
+      c.style.background  = colors[Math.floor(Math.random() * colors.length)];
       c.style.animationDelay = Math.random() * 1.5 + 's';
-      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-      c.style.transform = `rotate(${Math.random() * 360}deg)`;
+      c.style.borderRadius   = Math.random() > 0.5 ? '50%' : '2px';
+      c.style.transform      = `rotate(${Math.random() * 360}deg)`;
       document.body.appendChild(c);
       setTimeout(() => c.remove(), 5000);
     }
   }
+
+  // Keyboard support: press 1–4 to select the corresponding choice button
+  document.addEventListener('keydown', e => {
+    if (!state.isAnswering) return;
+    const num = parseInt(e.key, 10);
+    if (num >= 1 && num <= 4) {
+      const btns = document.querySelectorAll('#choices .choice:not(:disabled)');
+      const btn  = document.querySelectorAll('#choices .choice')[num - 1];
+      if (btn && !btn.disabled) btn.click();
+    }
+  });
 </script>
 </body>
 </html>
