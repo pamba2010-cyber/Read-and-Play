@@ -866,7 +866,7 @@
     roundInLevel: 0,
     totalCorrect: 0,
     currentWord: null,
-    lastWord: null,       // prevents consecutive word repeat
+    recentWords: [],      // sliding window of last 5 words shown (prevents close repeats)
     timerHandle: null,
     introTimeout: null,   // tracks level-intro delay so restart can cancel it
     timerInterval: null,  // drives the seconds countdown display
@@ -949,7 +949,7 @@
     state.totalCorrect = 0;
     state.combo        = 0;
     state.maxCombo     = 0;
-    state.lastWord     = null;
+    state.recentWords  = [];
     state.continuing   = false;
     document.getElementById('title-screen').classList.add('hidden');
     getAudio();
@@ -1010,7 +1010,7 @@
 
   function enterLevel() {
     state.roundInLevel = 0;
-    state.lastWord     = null;
+    state.recentWords  = [];
     document.getElementById('current-level-tag').textContent = LEVELS[state.levelIdx].name;
     updateProgress();
     updateComboBadge();
@@ -1058,15 +1058,17 @@
   }
 
   function nextRound() {
-    // Pick word, skipping the previous one to prevent back-to-back repeats
+    // Exclude the last 5 words shown so the same word never appears close together.
+    // Fallback to full pool if the pool is too small to honour the window.
     const pool = getWordPool();
-    let candidates = pool;
-    if (state.lastWord && pool.length > 1) {
-      const filtered = pool.filter(w => w.word !== state.lastWord.word);
-      if (filtered.length > 0) candidates = filtered;
-    }
+    let candidates = pool.filter(w => !state.recentWords.includes(w.word));
+    if (candidates.length === 0) candidates = pool;
+
     state.currentWord = candidates[Math.floor(Math.random() * candidates.length)];
-    state.lastWord    = state.currentWord;
+
+    // Slide the window: keep only the last 5 entries
+    state.recentWords.push(state.currentWord.word);
+    if (state.recentWords.length > 5) state.recentWords.shift();
 
     document.getElementById('word').textContent = state.currentWord.word;
 
