@@ -105,30 +105,51 @@
   }
   .home-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.15); }
 
-  .top-bar {
-    display: flex;
-    justify-content: center;
-    gap: 7px;
-    padding: 4px 0 10px;
-  }
-  .star-slot {
-    width: 32px;
-    height: 32px;
-    background: rgba(255,255,255,0.45);
-    border: 3px solid white;
-    border-radius: 50%;
+  /* PROGRESS BAR — replaces the old 5 stars to fit 20 rounds cleanly */
+  .progress-strip {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    transition: transform 0.4s cubic-bezier(.34,1.56,.64,1), background 0.3s;
+    gap: 8px;
+    padding: 4px 4px 10px;
   }
-  .star-slot.filled {
-    background: #FFD93D;
-    transform: scale(1.15) rotate(360deg);
-    box-shadow: 0 3px 0 #E8A800, 0 0 18px rgba(255,217,61,0.7);
+  .round-counter {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: white;
+    background: #FF6BB1;
+    padding: 4px 10px;
+    border-radius: 14px;
+    box-shadow: 0 2px 0 #C8388A;
+    white-space: nowrap;
   }
-  .star-slot.filled::after { content: '⭐'; }
+  .round-counter.danger {
+    background: linear-gradient(135deg, #FF3D8B, #FFD93D);
+    animation: counterFlash 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes counterFlash {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+  }
+  .pbar-wrap {
+    flex: 1;
+    height: 14px;
+    background: rgba(255,255,255,0.55);
+    border: 2px solid white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    max-width: 220px;
+  }
+  .pbar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FFD93D, #FF9F43, #FF6BB1);
+    width: 0%;
+    transition: width 0.5s cubic-bezier(.34,1.56,.64,1);
+    box-shadow: 0 0 8px rgba(255,217,61,0.6);
+    border-radius: 6px;
+  }
 
   .word-card {
     background: white;
@@ -200,102 +221,104 @@
     transition: transform 0.15s, box-shadow 0.15s;
     animation: choicePop 0.4s cubic-bezier(.34,1.56,.64,1) backwards;
   }
-  .choice:nth-child(1) { animation-delay: 0.05s; background: #FFE5B4; }
-  .choice:nth-child(2) { animation-delay: 0.15s; background: #C8F7C5; }
-  .choice:nth-child(3) { animation-delay: 0.25s; background: #FFD0E8; }
-  .choice:nth-child(4) { animation-delay: 0.35s; background: #C5E8FF; }
+  .choice:nth-child(1) { animation-delay: 0.05s; background: #FFE066; }
+  .choice:nth-child(2) { animation-delay: 0.13s; background: #C8F7C5; }
+  .choice:nth-child(3) { animation-delay: 0.21s; background: #FFB3D9; }
+  .choice:nth-child(4) { animation-delay: 0.29s; background: #B3E0FF; }
 
   @keyframes choicePop {
-    from { transform: scale(0); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    from { transform: scale(0) rotate(-180deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
   }
 
-  .choice:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.12); }
+  .choice:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 3px 3px 0 #1a0033;
+  }
   .choice:disabled { cursor: default; }
-  .choice.correct { animation: correctBounce 0.7s; }
-  .choice.wrong { animation: wrongShake 0.5s; }
+  .choice.correct { animation: choiceWin 0.7s; }
+  .choice.wrong { animation: choiceShake 0.5s; }
 
-  @keyframes correctBounce {
-    0%, 100% { transform: scale(1); }
-    40% { transform: scale(1.3) rotate(8deg); box-shadow: 0 0 40px #FFD93D, 0 5px 0 rgba(0,0,0,0.12); }
+  @keyframes choiceWin {
+    0%, 100% { transform: scale(1); box-shadow: 5px 5px 0 #1a0033; }
+    40% {
+      transform: scale(1.4) rotate(8deg);
+      box-shadow: 5px 5px 0 #1a0033, 0 0 60px #FFD93D, 0 0 30px white;
+    }
   }
-  @keyframes wrongShake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-10px) rotate(-3deg); }
-    40% { transform: translateX(10px) rotate(3deg); }
-    60% { transform: translateX(-8px) rotate(-2deg); }
-    80% { transform: translateX(8px) rotate(2deg); }
+  @keyframes choiceShake {
+    0%, 100% { transform: translate(0,0); }
+    20% { transform: translate(-10px, 2px) rotate(-3deg); }
+    40% { transform: translate(10px, -2px) rotate(3deg); }
+    60% { transform: translate(-8px, 2px) rotate(-2deg); }
+    80% { transform: translate(8px, -2px) rotate(2deg); }
   }
 
-  /* Bear chase track */
   .chase-track {
     position: relative;
-    height: 64px;
-    background: linear-gradient(to top, #C8F7C5 0%, #C8F7C5 50%, #B5DEFF 50%, #B5DEFF 100%);
-    border-radius: 32px;
-    border: 3px solid white;
-    box-shadow: 0 4px 0 rgba(0,0,0,0.1), inset 0 -8px 0 rgba(0,0,0,0.05);
+    height: 84px;
+    margin-top: 8px;
+    background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 35%, #4ADE80 35%, #2da654 100%);
+    border: 4px solid #1a0033;
+    border-radius: 20px;
+    box-shadow: 5px 5px 0 #1a0033, inset 0 -10px 0 rgba(0,0,0,0.15);
     overflow: hidden;
-    margin-top: 4px;
   }
-  .chase-track::before {
-    content: '';
+  .track-ground {
     position: absolute;
-    bottom: 8px;
+    bottom: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background-image: repeating-linear-gradient(to right, rgba(255,255,255,0.7) 0 8px, transparent 8px 16px);
+    height: 35%;
+    background-image: repeating-linear-gradient(to right,
+      rgba(255,255,255,0.4) 0 16px,
+      transparent 16px 32px);
+    background-position-y: 50%;
+    background-repeat: no-repeat;
+    background-size: 100% 3px;
+    animation: groundScroll 0.4s linear infinite;
   }
+  @keyframes groundScroll {
+    from { background-position-x: 0; }
+    to { background-position-x: -32px; }
+  }
+
   .bear {
     position: absolute;
-    bottom: 4px;
+    bottom: 6px;
     left: 8px;
-    font-size: 38px;
-    z-index: 2;
-    animation: bearWaddle 0.4s ease-in-out infinite alternate;
+    font-size: 44px;
+    z-index: 3;
+    animation: chaserBounce 0.3s ease-in-out infinite alternate;
+    filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.3));
   }
-  @keyframes bearWaddle {
-    from { transform: rotate(-4deg) translateY(0); }
-    to { transform: rotate(4deg) translateY(-2px); }
+  @keyframes chaserBounce {
+    from { transform: rotate(-5deg) translateY(0) scaleX(1); }
+    to { transform: rotate(5deg) translateY(-4px) scaleX(1); }
   }
   .kid {
     position: absolute;
-    bottom: 4px;
+    bottom: 6px;
     right: 8px;
-    font-size: 38px;
-    z-index: 2;
-    animation: kidRun 0.3s ease-in-out infinite alternate;
+    font-size: 44px;
+    z-index: 3;
+    animation: runnerSprint 0.2s ease-in-out infinite alternate;
+    filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.3));
   }
-  @keyframes kidRun {
-    from { transform: translateY(0) rotate(-3deg); }
-    to { transform: translateY(-3px) rotate(3deg); }
+  @keyframes runnerSprint {
+    from { transform: translateY(0) rotate(-5deg) scaleX(-1); }
+    to { transform: translateY(-5px) rotate(5deg) scaleX(-1); }
   }
-  .kid.tickled {
-    animation: tickled 0.2s infinite;
-  }
-  @keyframes tickled {
-    0%, 100% { transform: rotate(-12deg) translateY(-2px); }
-    50% { transform: rotate(12deg) translateY(-2px); }
-  }
-
-  .giggle {
-    position: fixed;
-    font-size: 30px;
-    pointer-events: none;
-    animation: giggleFloat 1.8s ease-out forwards;
-    z-index: 1000;
-  }
-  @keyframes giggleFloat {
-    0% { transform: translateY(0) scale(0.4); opacity: 0; }
-    20% { opacity: 1; }
-    100% { transform: translateY(-140px) scale(1.3); opacity: 0; }
+  .kid.tickled { animation: tickleWiggle 0.15s infinite; }
+  @keyframes tickleWiggle {
+    0%, 100% { transform: rotate(-15deg) scaleX(-1); }
+    50% { transform: rotate(15deg) scaleX(-1); }
   }
 
   .bubble {
     position: absolute;
     bottom: 56px;
-    right: 8px;
+    right: 12px;
     background: white;
     color: #FF6BB1;
     font-family: 'Fredoka', sans-serif;
@@ -307,12 +330,9 @@
     opacity: 0;
     transform: scale(0);
     transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
-    z-index: 3;
+    z-index: 4;
   }
-  .bubble.show {
-    opacity: 1;
-    transform: scale(1);
-  }
+  .bubble.show { opacity: 1; transform: scale(1); }
   .bubble::after {
     content: '';
     position: absolute;
@@ -325,7 +345,19 @@
     border-top: 8px solid white;
   }
 
-  /* Overlay screens */
+  .giggle {
+    position: fixed;
+    font-size: 32px;
+    pointer-events: none;
+    animation: giggleFloat 1.6s ease-out forwards;
+    z-index: 1000;
+  }
+  @keyframes giggleFloat {
+    0% { transform: translateY(0) scale(0.4); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(-160px) scale(1.4) rotate(20deg); opacity: 0; }
+  }
+
   .screen {
     position: fixed;
     inset: 0;
@@ -463,7 +495,6 @@
     margin-bottom: 26px;
   }
 
-  /* Level intro splash */
   .level-splash {
     text-align: center;
     animation: splashIn 0.6s cubic-bezier(.34,1.56,.64,1);
@@ -485,7 +516,19 @@
     font-weight: 600;
     font-size: 32px;
     color: #5B4FE4;
-    margin: 4px 0 18px;
+    margin: 4px 0 12px;
+  }
+  .level-splash .lvl-rounds {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: white;
+    background: #FF6BB1;
+    padding: 6px 18px;
+    border-radius: 18px;
+    box-shadow: 0 3px 0 #C8388A;
+    display: inline-block;
+    margin-bottom: 10px;
   }
   .level-splash .lvl-hint {
     font-family: 'Quicksand', sans-serif;
@@ -521,55 +564,53 @@
   <h1 class="title">
     <span class="l1">Read</span><span class="l2">&amp;</span><span class="l3">Play!</span>
   </h1>
-  <p class="subtitle">Read the word, tap the picture.<br>But quick! The bear is coming for tickles!</p>
+  <p class="subtitle">20 rounds per grade!<br>Each one harder than the last!</p>
   <div class="preview">🐻 <span class="arrow">➜</span> 🧒</div>
   <button class="play-btn" onclick="startGame()">Let's Go! ✨</button>
-  <div class="credit">Made with love · pambalaw.com</div>
+  <div class="credit">made with love · pambalaw.com</div>
 </div>
 
-<!-- Level intro splash -->
+<!-- Level intro -->
 <div class="screen hidden" id="level-intro">
   <div class="level-splash">
     <div class="grade-icon" id="grade-icon">🎒</div>
     <div class="lvl-num" id="lvl-num">Level 1</div>
     <div class="lvl-name" id="lvl-name">Preschool</div>
+    <div class="lvl-rounds">🌟 20 rounds 🌟</div>
     <div class="lvl-hint">Get ready!</div>
   </div>
 </div>
 
-<!-- Celebration after level -->
+<!-- Celebration -->
 <div class="screen hidden" id="celebrate-screen">
   <div class="celebration">
-    <div class="big-emoji">🎉</div>
-    <h2>Amazing!</h2>
-    <div class="next-level" id="next-level-msg">Level 2 next!</div>
-    <p id="celebrate-msg">You earned 5 stars!</p>
-    <button class="play-btn" onclick="continueGame()">Keep Going! ⭐</button>
+    <div class="big-emoji">🎊</div>
+    <h2>LEVEL CLEAR!</h2>
+    <div class="next-level" id="next-level-msg">NEXT: KINDERGARTEN</div>
+    <div class="stat" id="celebrate-stat">⭐ 20 stars · 🔥 max combo 5</div>
+    <button class="play-btn" onclick="continueGame()">NEXT ▶</button>
   </div>
 </div>
 
-<!-- Final win -->
+<!-- Champion -->
 <div class="screen hidden trophy-screen" id="champion-screen">
   <div class="celebration">
     <div class="big-emoji">🏆</div>
-    <h2>Reading Champion!</h2>
-    <p id="champion-msg">You read all 5 levels!</p>
-    <button class="play-btn" onclick="restartGame()">Play Again 🌈</button>
+    <h2>READING CHAMPION!</h2>
+    <p id="champion-msg">You did it!</p>
+    <button class="play-btn" onclick="restartGame()">PLAY AGAIN</button>
   </div>
 </div>
 
 <!-- Game -->
 <div class="game" id="game-screen" style="display:none;">
   <div class="game-header">
-    <div class="level-tag" id="current-level-tag">Preschool</div>
+    <div class="level-tag" id="current-level-tag">PRESCHOOL</div>
     <button class="home-btn" onclick="restartGame()" aria-label="restart">🏠</button>
   </div>
-  <div class="top-bar" id="stars">
-    <div class="star-slot"></div>
-    <div class="star-slot"></div>
-    <div class="star-slot"></div>
-    <div class="star-slot"></div>
-    <div class="star-slot"></div>
+  <div class="progress-strip">
+    <div class="round-counter" id="round-counter">⭐ 0/20</div>
+    <div class="pbar-wrap"><div class="pbar-fill" id="pbar-fill"></div></div>
   </div>
   <div class="word-card">
     <div class="label">Read this word</div>
@@ -578,6 +619,7 @@
   </div>
   <div class="choices" id="choices"></div>
   <div class="chase-track">
+    <div class="track-ground"></div>
     <div class="bubble" id="bubble">hahaha!</div>
     <div class="bear" id="bear">🐻</div>
     <div class="kid" id="kid">🧒</div>
@@ -585,93 +627,127 @@
 </div>
 
 <script>
+  /* =========================================================
+     READ & PLAY — 20 rounds per grade with progressive difficulty
+     ========================================================= */
+
   const LEVELS = [
     {
       name: "Preschool",
       icon: "🍼",
-      timeLimit: 16,
-      words: [
+      // round 1 timer = 16s, round 20 timer = 9s
+      startTime: 16,
+      endTime: 9,
+      // EASY: very common single-syllable words
+      easy: [
         { word: 'cat', emoji: '🐱' }, { word: 'dog', emoji: '🐶' },
-        { word: 'pig', emoji: '🐷' }, { word: 'cow', emoji: '🐮' },
-        { word: 'fox', emoji: '🦊' }, { word: 'bee', emoji: '🐝' },
-        { word: 'owl', emoji: '🦉' }, { word: 'sun', emoji: '☀️' },
-        { word: 'hat', emoji: '🎩' }, { word: 'bus', emoji: '🚌' },
-        { word: 'car', emoji: '🚗' }, { word: 'egg', emoji: '🥚' }
+        { word: 'sun', emoji: '☀️' }, { word: 'pig', emoji: '🐷' },
+        { word: 'cow', emoji: '🐮' }, { word: 'fox', emoji: '🦊' },
+        { word: 'bee', emoji: '🐝' }, { word: 'owl', emoji: '🦉' },
+        { word: 'hat', emoji: '🎩' }, { word: 'cup', emoji: '☕' },
+        { word: 'bus', emoji: '🚌' }, { word: 'car', emoji: '🚗' },
+        { word: 'egg', emoji: '🥚' }, { word: 'bed', emoji: '🛏️' }
+      ],
+      // HARDER: still simple but with consonant blends or 4 letters
+      hard: [
+        { word: 'fish', emoji: '🐟' }, { word: 'frog', emoji: '🐸' },
+        { word: 'duck', emoji: '🦆' }, { word: 'star', emoji: '⭐' },
+        { word: 'ball', emoji: '⚽' }, { word: 'milk', emoji: '🥛' },
+        { word: 'moon', emoji: '🌙' }, { word: 'leaf', emoji: '🍃' }
       ]
     },
     {
       name: "Kindergarten",
       icon: "🎒",
-      timeLimit: 14,
-      words: [
-        { word: 'ball', emoji: '⚽' }, { word: 'fish', emoji: '🐟' },
-        { word: 'frog', emoji: '🐸' }, { word: 'star', emoji: '⭐' },
-        { word: 'cake', emoji: '🍰' }, { word: 'leaf', emoji: '🍃' },
-        { word: 'duck', emoji: '🦆' }, { word: 'bear', emoji: '🐻' },
-        { word: 'moon', emoji: '🌙' }, { word: 'milk', emoji: '🥛' },
-        { word: 'bird', emoji: '🐦' }, { word: 'tree', emoji: '🌳' },
-        { word: 'fire', emoji: '🔥' }, { word: 'book', emoji: '📖' },
-        { word: 'lion', emoji: '🦁' }, { word: 'boat', emoji: '🚤' }
+      startTime: 14,
+      endTime: 8,
+      easy: [
+        { word: 'fish', emoji: '🐟' }, { word: 'frog', emoji: '🐸' },
+        { word: 'star', emoji: '⭐' }, { word: 'cake', emoji: '🍰' },
+        { word: 'leaf', emoji: '🍃' }, { word: 'duck', emoji: '🦆' },
+        { word: 'bear', emoji: '🐻' }, { word: 'moon', emoji: '🌙' },
+        { word: 'milk', emoji: '🥛' }, { word: 'bird', emoji: '🐦' },
+        { word: 'tree', emoji: '🌳' }, { word: 'fire', emoji: '🔥' },
+        { word: 'book', emoji: '📖' }, { word: 'lion', emoji: '🦁' }
+      ],
+      hard: [
+        { word: 'snake', emoji: '🐍' }, { word: 'apple', emoji: '🍎' },
+        { word: 'cloud', emoji: '☁️' }, { word: 'bread', emoji: '🍞' },
+        { word: 'whale', emoji: '🐳' }, { word: 'plant', emoji: '🪴' },
+        { word: 'crown', emoji: '👑' }, { word: 'sheep', emoji: '🐑' }
       ]
     },
     {
       name: "1st & 2nd Grade",
       icon: "📚",
-      timeLimit: 13,
-      words: [
+      startTime: 13,
+      endTime: 7,
+      easy: [
         { word: 'apple', emoji: '🍎' }, { word: 'snake', emoji: '🐍' },
         { word: 'horse', emoji: '🐴' }, { word: 'sheep', emoji: '🐑' },
         { word: 'panda', emoji: '🐼' }, { word: 'train', emoji: '🚂' },
-        { word: 'robot', emoji: '🤖' }, { word: 'ghost', emoji: '👻' },
         { word: 'pizza', emoji: '🍕' }, { word: 'candy', emoji: '🍬' },
         { word: 'cloud', emoji: '☁️' }, { word: 'peach', emoji: '🍑' },
-        { word: 'shark', emoji: '🦈' }, { word: 'tiger', emoji: '🐯' },
+        { word: 'shark', emoji: '🦈' }, { word: 'tiger', emoji: '🐯' }
+      ],
+      hard: [
         { word: 'koala', emoji: '🐨' }, { word: 'whale', emoji: '🐳' },
         { word: 'monkey', emoji: '🐵' }, { word: 'turtle', emoji: '🐢' },
-        { word: 'rabbit', emoji: '🐰' }, { word: 'rocket', emoji: '🚀' }
+        { word: 'rabbit', emoji: '🐰' }, { word: 'rocket', emoji: '🚀' },
+        { word: 'castle', emoji: '🏰' }, { word: 'cookie', emoji: '🍪' },
+        { word: 'guitar', emoji: '🎸' }, { word: 'pumpkin', emoji: '🎃' },
+        { word: 'banana', emoji: '🍌' }, { word: 'orange', emoji: '🍊' }
       ]
     },
     {
       name: "3rd Grade",
       icon: "🎨",
-      timeLimit: 12,
-      words: [
+      startTime: 12,
+      endTime: 6,
+      easy: [
         { word: 'dragon', emoji: '🐉' }, { word: 'cookie', emoji: '🍪' },
         { word: 'guitar', emoji: '🎸' }, { word: 'castle', emoji: '🏰' },
+        { word: 'balloon', emoji: '🎈' }, { word: 'anchor', emoji: '⚓' },
+        { word: 'ladybug', emoji: '🐞' }, { word: 'popcorn', emoji: '🍿' }
+      ],
+      hard: [
         { word: 'dolphin', emoji: '🐬' }, { word: 'octopus', emoji: '🐙' },
         { word: 'penguin', emoji: '🐧' }, { word: 'peacock', emoji: '🦚' },
-        { word: 'mushroom', emoji: '🍄' }, { word: 'balloon', emoji: '🎈' },
-        { word: 'anchor', emoji: '⚓' }, { word: 'ladybug', emoji: '🐞' },
-        { word: 'popcorn', emoji: '🍿' }, { word: 'hedgehog', emoji: '🦔' },
-        { word: 'flamingo', emoji: '🦩' }, { word: 'unicorn', emoji: '🦄' }
+        { word: 'mushroom', emoji: '🍄' }, { word: 'hedgehog', emoji: '🦔' },
+        { word: 'flamingo', emoji: '🦩' }, { word: 'unicorn', emoji: '🦄' },
+        { word: 'firework', emoji: '🎆' }, { word: 'platypus', emoji: '🦫' },
+        { word: 'sunflower', emoji: '🌻' }, { word: 'pineapple', emoji: '🍍' }
       ]
     },
     {
       name: "4th & 5th Grade",
       icon: "🔬",
-      timeLimit: 11,
-      words: [
+      startTime: 11,
+      endTime: 5,
+      easy: [
         { word: 'elephant', emoji: '🐘' }, { word: 'giraffe', emoji: '🦒' },
-        { word: 'butterfly', emoji: '🦋' }, { word: 'kangaroo', emoji: '🦘' },
-        { word: 'pineapple', emoji: '🍍' }, { word: 'sandwich', emoji: '🥪' },
-        { word: 'snowflake', emoji: '❄️' }, { word: 'crocodile', emoji: '🐊' },
-        { word: 'telescope', emoji: '🔭' }, { word: 'helicopter', emoji: '🚁' },
-        { word: 'microscope', emoji: '🔬' }, { word: 'basketball', emoji: '🏀' },
+        { word: 'kangaroo', emoji: '🦘' }, { word: 'pineapple', emoji: '🍍' },
+        { word: 'sandwich', emoji: '🥪' }, { word: 'crocodile', emoji: '🐊' },
+        { word: 'helicopter', emoji: '🚁' }, { word: 'basketball', emoji: '🏀' }
+      ],
+      hard: [
+        { word: 'butterfly', emoji: '🦋' }, { word: 'snowflake', emoji: '❄️' },
+        { word: 'telescope', emoji: '🔭' }, { word: 'microscope', emoji: '🔬' },
         { word: 'skateboard', emoji: '🛹' }, { word: 'ambulance', emoji: '🚑' },
-        { word: 'motorcycle', emoji: '🏍️' }, { word: 'hippopotamus', emoji: '🦛' },
-        { word: 'caterpillar', emoji: '🐛' }, { word: 'watermelon', emoji: '🍉' },
-        { word: 'strawberry', emoji: '🍓' }, { word: 'rhinoceros', emoji: '🦏' }
+        { word: 'motorcycle', emoji: '🏍️' }, { word: 'caterpillar', emoji: '🐛' },
+        { word: 'watermelon', emoji: '🍉' }, { word: 'strawberry', emoji: '🍓' },
+        { word: 'rhinoceros', emoji: '🦏' }, { word: 'hippopotamus', emoji: '🦛' }
       ]
     }
   ];
 
-  const STARS_PER_LEVEL = 5;
+  const ROUNDS_PER_LEVEL = 20;
   const KIDS = ['👧', '👦', '🧒'];
 
   let state = {
     levelIdx: 0,
-    starsInLevel: 0,
-    totalStars: 0,
+    roundInLevel: 0,        // 0..19
+    totalCorrect: 0,
     pool: [],
     currentWord: null,
     timerHandle: null,
@@ -738,7 +814,7 @@
 
   function startGame() {
     state.levelIdx = 0;
-    state.totalStars = 0;
+    state.totalCorrect = 0;
     document.getElementById('title-screen').classList.add('hidden');
     getAudio();
     showLevelIntro();
@@ -768,13 +844,30 @@
     }, 1800);
   }
 
-  function enterLevel() {
-    state.starsInLevel = 0;
-    state.pool = [...LEVELS[state.levelIdx].words];
-    state.pool.sort(() => Math.random() - 0.5);
+  // Difficulty: each round in the level uses a shrinking timer
+  // Round 1: startTime sec, Round 20: endTime sec
+  function timerForRound(roundNum) {
+    const lvl = LEVELS[state.levelIdx];
+    const ratio = roundNum / (ROUNDS_PER_LEVEL - 1);  // 0..1
+    return lvl.startTime - (lvl.startTime - lvl.endTime) * ratio;
+  }
 
-    document.querySelectorAll('.star-slot').forEach(s => s.classList.remove('filled'));
+  // Pick the word pool: first half of rounds use "easy" words, second half use "hard"
+  function getWordPool() {
+    const lvl = LEVELS[state.levelIdx];
+    if (state.roundInLevel < ROUNDS_PER_LEVEL / 2) {
+      // easy phase
+      return [...lvl.easy];
+    } else {
+      // hard phase — mostly hard words, sprinkle a few easy
+      return [...lvl.hard, ...lvl.hard, ...lvl.easy.slice(0, 3)];
+    }
+  }
+
+  function enterLevel() {
+    state.roundInLevel = 0;
     document.getElementById('current-level-tag').textContent = LEVELS[state.levelIdx].name;
+    updateProgress();
 
     // randomize kid for this level
     const kid = KIDS[Math.floor(Math.random() * KIDS.length)];
@@ -784,15 +877,27 @@
     nextRound();
   }
 
-  function nextRound() {
-    if (state.pool.length === 0) {
-      state.pool = [...LEVELS[state.levelIdx].words];
-      state.pool.sort(() => Math.random() - 0.5);
+  function updateProgress() {
+    const correct = state.roundInLevel;
+    document.getElementById('round-counter').textContent = `⭐ ${correct}/${ROUNDS_PER_LEVEL}`;
+    document.getElementById('pbar-fill').style.width = `${(correct / ROUNDS_PER_LEVEL) * 100}%`;
+    // Last 5 rounds = danger mode
+    if (correct >= 15) {
+      document.getElementById('round-counter').classList.add('danger');
+    } else {
+      document.getElementById('round-counter').classList.remove('danger');
     }
-    state.currentWord = state.pool.pop();
+  }
+
+  function nextRound() {
+    // Build pool fresh each round so we always have words to choose from
+    const pool = getWordPool();
+    state.currentWord = pool[Math.floor(Math.random() * pool.length)];
     document.getElementById('word').textContent = state.currentWord.word;
 
-    const allWords = LEVELS[state.levelIdx].words;
+    // Distractors come from the WHOLE level (easy + hard) so later rounds have tricky lookalikes
+    const lvl = LEVELS[state.levelIdx];
+    const allWords = [...lvl.easy, ...lvl.hard];
     const others = allWords.filter(w => w.word !== state.currentWord.word);
     const distractors = [];
     while (distractors.length < 3 && others.length > distractors.length) {
@@ -816,11 +921,11 @@
   }
 
   function startBearChase() {
-    const seconds = LEVELS[state.levelIdx].timeLimit;
+    const seconds = timerForRound(state.roundInLevel);
     const b = bearEl();
     b.style.transition = 'none';
     b.style.left = '8px';
-    void b.offsetWidth; // reflow
+    void b.offsetWidth;
     b.style.transition = `left ${seconds}s linear`;
     b.style.left = 'calc(100% - 80px)';
 
@@ -849,20 +954,19 @@
       speakWord();
       stopBearChase();
 
-      state.starsInLevel++;
-      state.totalStars++;
-      const slot = document.querySelectorAll('.star-slot')[state.starsInLevel - 1];
-      if (slot) slot.classList.add('filled');
+      state.roundInLevel++;
+      state.totalCorrect++;
+      updateProgress();
 
       document.querySelectorAll('.choice').forEach(b => b.disabled = true);
 
       setTimeout(() => {
-        if (state.starsInLevel >= STARS_PER_LEVEL) {
+        if (state.roundInLevel >= ROUNDS_PER_LEVEL) {
           completeLevel();
         } else {
           nextRound();
         }
-      }, 1300);
+      }, 1200);
     } else {
       btn.classList.add('wrong');
       sadBoop();
@@ -878,7 +982,6 @@
     const k = kidEl();
     const bubble = bubbleEl();
 
-    // bear pounces to overlap with kid
     b.style.transition = 'left 0.25s ease-in';
     b.style.left = 'calc(100% - 76px)';
 
@@ -890,9 +993,9 @@
     setTimeout(() => {
       k.classList.remove('tickled');
       bubble.classList.remove('show');
-      // bear retreats
       b.style.transition = 'left 0.6s cubic-bezier(.34,1.56,.64,1)';
       b.style.left = '8px';
+      // tickle = retry the same round (no progress lost, no progress gained)
       setTimeout(() => nextRound(), 500);
     }, 2000);
   }
@@ -923,13 +1026,13 @@
     if (isLast) {
       const champ = document.getElementById('champion-screen');
       document.getElementById('champion-msg').textContent =
-        `You read all ${LEVELS.length} levels and earned ${state.totalStars} stars! Wow!`;
+        `You finished all ${LEVELS.length} grades and answered ${state.totalCorrect} questions!`;
       champ.classList.remove('hidden');
     } else {
       const next = LEVELS[state.levelIdx + 1];
       document.getElementById('next-level-msg').textContent = `Next: ${next.name}!`;
-      document.getElementById('celebrate-msg').textContent =
-        `${state.totalStars} stars so far!`;
+      document.getElementById('celebrate-stat').textContent =
+        `⭐ ${state.totalCorrect} correct so far!`;
       document.getElementById('celebrate-screen').classList.remove('hidden');
     }
   }
