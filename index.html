@@ -389,7 +389,6 @@
   <div class="word-card">
     <div class="label">Read this word</div>
     <div class="word" id="word">cat</div>
-    <button class="speaker-btn" onclick="speakWord()" aria-label="hear word">🔊</button>
   </div>
   <div class="choices" id="choices"></div>
   <div class="chase-track">
@@ -863,7 +862,6 @@ function nextRound() {
   });
 
   state.isAnswering = true;
-  setTimeout(() => speakWord(), 200);
   startBearChase();
 }
 
